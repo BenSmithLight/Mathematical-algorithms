@@ -203,6 +203,7 @@ def get_input():
     return matrix
 
 if __name__ == '__main__':
+    # 获取用户输入
     cost_matrix = get_input()
     hungarian = Hungarian(cost_matrix)
     print('\n计算中...')
