@@ -32,7 +32,11 @@ def get_input():
 
 
 # 判断是否达到最优解，即检验数是否都小于等于零
-def judge(matrix):
+def judge(matrix, judge_cont, no_result):
+    judge_cont += 1  # 迭代次数加一
+    if judge_cont > 1000:  # 如果迭代次数大于1000，说明没有最优解，返回False
+        no_result = True
+        return False
     if max(matrix[-1][:-1]) <= 0:  # 最后一行除了b列的所有检验数
         result = False  # 如果都小于等于零，返回False表示已经是最优解
     else:
@@ -43,27 +47,30 @@ def judge(matrix):
 # 转轴操作，从一个基可行解转换到相邻的基可行解
 def pivot(data, matrix, base_variables):
     max_value = max(matrix[-1][:-1])  # 找到最大的检验数
-    column_index = data[-1].index(max_value)  # 找到最大检验数对应的列标，即入基变量的下标
+    column_index = data[-1].index(max_value)  # 找到最大检验数对应的列标，即换入基变量的下标
     theta_values = {}
     for constraint in data[:-1]:
-        if constraint[column_index] > 0:  # 如果入基变量的系数大于零，说明可以作为出基变量的候选
+        if constraint[column_index] > 0:  # 如果换入基变量的系数大于零，说明可以作为换出基变量的候选
             theta = constraint[-1] / constraint[
-                column_index]  # 计算θ值，即b值除以入基变量的系数
+                column_index]  # 计算θ值，即b值除以换入基变量的系数
             theta_values[theta] = data.index(constraint)
-    pivot_row = theta_values[min(theta_values)]  # 找到最小的θ值对应的行标，即出基变量的下标
+    pivot_row = theta_values[min(theta_values)]  # 找到最小的θ值对应的行标，即换出基变量的下标
     matrix[pivot_row] = matrix[pivot_row] / matrix[pivot_row][
-        column_index]  # 将出基变量所在的行除以入基变量的系数，得到新的基变量所在的行
+        column_index]  # 将换出基变量所在的行除以换入基变量的系数，得到新的基变量所在的行
     for row in range(len(data)):
         if row != pivot_row:
             matrix[row] = matrix[row] - matrix[row][column_index] * matrix[
-                pivot_row]  # 用高斯消元法将入基变量所在的列消为零
+                pivot_row]  # 用高斯消元法将换入基变量所在的列消为零
     base_variables[pivot_row] = column_index + 1
     data = [list(i) for i in matrix]
     return data, matrix, base_variables
 
 
 # 定义一个函数，用于打印最优解和最优值
-def out_put(matrix, base_variables):
+def out_put(matrix, base_variables, no_results):
+    if no_results:
+        print("无最优解。")
+        return
     print('\n最优解为：')
     for i in range(1, n + 1):  # 遍历每个决策变量
         if i in base_variables:  # 如果是基变量
@@ -83,11 +90,13 @@ def out_put(matrix, base_variables):
 def main():
     data, matrix, base_variables = get_input()  # 获取输入数据
 
-    while judge(matrix):  # 判断是否达到最优解，如果没有，继续迭代
+    no_result = False
+    judge_cont = 0  # 定义一个全局变量，用于记录迭代次数
+    while judge(matrix, judge_cont, no_result):  # 判断是否达到最优解，如果没有，继续迭代
         # 进行转轴操作，返回新的列表，矩阵和基变量下标
         data, matrix, base_variables = pivot(data, matrix, base_variables)
 
-    out_put(matrix, base_variables)  # 打印最优解和最优值
+    out_put(matrix, base_variables, no_result)  # 打印最优解和最优值
     print("-" * 80)
 
 

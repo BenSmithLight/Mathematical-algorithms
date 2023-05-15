@@ -1,4 +1,4 @@
-function [xm, fm] = model3(A, b, c)
+function [xm, fm, no_result] = model3(A, b, c)
     % 单纯形法求解线性规划问题
     % 输出xm为最优解，fm为最优函数值
     %% 初始化数据
@@ -6,6 +6,8 @@ function [xm, fm] = model3(A, b, c)
     [m, n] = size(A);
     v = nchoosek(1:n, m);  %从n个元素中取m个元素的所有组合
     basisIndices = [];
+    judge_count = 0;  % 记录判断次数
+    no_result = false;  % 记录无解次数
 
     %% 提取可行解所在列
     for i = 1:size(v, 1)
@@ -36,6 +38,14 @@ function [xm, fm] = model3(A, b, c)
             xm = x0;
             fm = c' * xm; %算出最优解
             return
+        else
+            judge_count = judge_count + 1;
+            if (judge_count > 1000)
+                no_result = true;
+                xm = [];
+                fm = [];
+                return
+            end
         end
 
         % 判断是否有解
