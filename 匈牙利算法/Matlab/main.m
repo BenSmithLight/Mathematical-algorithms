@@ -53,7 +53,7 @@ disp([newline, '最优解为：'])
 
 for i = 1:n
     cost_sum = cost_sum + cost_bak(i, result(i));
-    fprintf(' x_%s%s=', num2str(i), num2str(result(1)));
+    fprintf(' x_%s%s=', num2str(i), num2str(result(i)));
     fprintf('1');
 end
 
